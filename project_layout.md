@@ -1,0 +1,2 @@
+- templates should be in each app
+- styles and templates should be split and then use a commmand to combine them

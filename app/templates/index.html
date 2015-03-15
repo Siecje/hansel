@@ -7,4 +7,15 @@
 <div class="page-header">
     <h1>Hello, {% if current_user.is_authenticated() %}{{ current_user.username }}{% else %}Stranger{% endif %}!</h1>
 </div>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      {% if not current_user.is_authenticated() %}
+        <p>I am a(n)</p>
+        <a href="{{ url_for('accounts.register_instructor') }}" class="btn btn-info">Instructor</a>
+        <a href="{{ url_for('accounts.register_student') }}" class="btn btn-default">Student</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock page_content %}

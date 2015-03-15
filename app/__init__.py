@@ -25,4 +25,7 @@ def create_app(config_name):
     from .accounts import accounts as accounts_blueprint
     app.register_blueprint(accounts_blueprint)
 
+    from .courses import courses as courses_blueprint
+    app.register_blueprint(courses_blueprint)
+
     return app

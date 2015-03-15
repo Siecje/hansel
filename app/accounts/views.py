@@ -3,11 +3,12 @@ from flask.ext.login import login_user, logout_user, login_required, \
     current_user
 from app.core import db
 from app.decorators import permission_required
-from app.email import send_email
+from app.courses.models import Course
 from . import accounts
 from .models import User, Role
 from .forms import LoginForm, RegistrationForm, ChangePasswordForm,\
-    PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm, EditProfileForm, EditProfileAdminForm
+    PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm, EditProfileForm, EditProfileAdminForm,\
+    StudentRegistrationForm
 
 
 @accounts.before_app_request
@@ -46,20 +47,34 @@ def logout():
     return redirect(url_for('main.index'))
 
 
-@accounts.route('/register', methods=['GET', 'POST'])
-def register():
+@accounts.route('/register/instructor', methods=['GET', 'POST'])
+def register_instructor():
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(email=form.email.data,
                     username=form.username.data,
-                    password=form.password.data)
+                    password=form.password.data,
+                    role=Role.query.filter_by(name='Instructor').first(),
+                    confirmed=True)
         db.session.add(user)
         db.session.commit()
-        token = user.generate_confirmation_token()
-        send_email(user.email, 'Confirm Your Account',
-                   'accounts/email/confirm', user=user, token=token)
-        flash('A confirmation email has been sent to you by email.')
-        return redirect(url_for('accounts.login'))
+        flash('You have been registered.')
+        return redirect(url_for('accounts.user', user=user))
+    return render_template('accounts/register.html', form=form)
+
+@accounts.route('/register/student', methods=['GET', 'POST'])
+def register_student():
+    form = StudentRegistrationForm()
+    if form.validate_on_submit():
+        user = User(email=form.email.data,
+                    username=form.username.data,
+                    password=form.password.data,
+                    confirmed=True)
+        user.courses.append(Course.query.get(form.course.data))
+        db.session.add(user)
+        db.session.commit()
+        flash('You have been registered.')
+        return redirect(url_for('accounts.user', user=user))
     return render_template('accounts/register.html', form=form)
 
 

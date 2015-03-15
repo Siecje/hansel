@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% import "_macros.html" as macros %}
 
 {% block title %}Flasky - {{ user.username }}{% endblock %}
 
@@ -30,6 +29,19 @@
             {% endif %}
         </p>
     </div>
+</div>
+<div class="row">
+  <div class="col-sm-12">
+    {% if user.role.name == 'Instructor' %}
+      <a href="{{ url_for('courses.create_course') }}" class="btn btn-info">Create Course</a>
+    {% endif %}
+    <h3>Courses</h3>
+    <ul>
+    {% for course in user.courses %}
+      <li><a href="{{ url_for('courses.view_course', id=course.id) }}">{{ course.name }}</a></li>
+    {% endfor %}
+    </ul>
+  </div>
 </div>
 
 {% endblock %}

@@ -1,6 +1,6 @@
 import os
 from app import create_app, db
-from app.accounts.models import Permission, Role, User
+from app.accounts.models import Role, User
 from flask.ext.script import Manager, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
 
@@ -33,7 +33,7 @@ def profile(length=25, profile_dir=None):
 def deploy():
     """Run deployment tasks."""
     from flask.ext.migrate import upgrade
-    from app.accounts.models import Permission, Role
+    from app.accounts.models import Role
 
     # migrate database to latest revision
     upgrade()

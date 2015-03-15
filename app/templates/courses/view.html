@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Hansel - {{ course.name }}{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>{{ course.name }}</h1>
+
+    <ul>
+    {% for assignment in course.assignments %}
+      <li><a href="{{ url_for('courses.view_assignment', course_id=course.id, assignment_id=assignment.id) }}">{{ assignment.name }}</a></li>
+    {% endfor %}
+    </ul>
+    {% if user.role.name == 'Instructor' %}
+    <h3>Create Assignment</h3>
+    {{ wtf.quick_form(form) }}
+    {% endif %}
+</div>
+{% endblock %}

@@ -58,9 +58,11 @@ def register_instructor():
                     confirmed=True)
         db.session.add(user)
         db.session.commit()
+        login_user(user)
         flash('You have been registered.')
-        return redirect(url_for('accounts.user', user=user))
+        return redirect(url_for('accounts.user', username=user.username))
     return render_template('accounts/register.html', form=form)
+
 
 @accounts.route('/register/student', methods=['GET', 'POST'])
 def register_student():
@@ -73,8 +75,9 @@ def register_student():
         user.courses.append(Course.query.get(form.course.data))
         db.session.add(user)
         db.session.commit()
+        login_user(user)
         flash('You have been registered.')
-        return redirect(url_for('accounts.user', user=user))
+        return redirect(url_for('accounts.user', username=user.username))
     return render_template('accounts/register.html', form=form)
 
 
@@ -183,11 +186,6 @@ def change_email(token):
 @accounts.route('/user/<username>')
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    #page = request.args.get('page', 1, type=int)
-    #pagination = user.posts.order_by(Post.timestamp.desc()).paginate(
-    #    page, per_page=current_app.config['POSTS_PER_PAGE'],
-    #    error_out=False)
-    #posts = pagination.items
     return render_template('accounts/profile.html', user=user)
 
 

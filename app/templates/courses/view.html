@@ -12,7 +12,7 @@
       <li><a href="{{ url_for('courses.view_assignment', course_id=course.id, assignment_id=assignment.id) }}">{{ assignment.name }}</a></li>
     {% endfor %}
     </ul>
-    {% if user.role.name == 'Instructor' %}
+    {% if current_user.role.name == 'Instructor' %}
     <h3>Create Assignment</h3>
     {{ wtf.quick_form(form) }}
     {% endif %}

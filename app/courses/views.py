@@ -1,13 +1,18 @@
-from flask import abort, render_template, redirect, request, url_for, flash
-from flask.ext.login import current_user
+from werkzeug import secure_filename
+from flask import abort, render_template, redirect, request, url_for, flash, current_app
+from flask.ext.login import current_user, login_required
 from app.core import db
 from . import courses
-from .models import Course, Assignment
-from .forms import CourseForm, AssignmentForm
+from .models import Course, Assignment, Submission
+from .forms import CourseForm, AssignmentForm, SubmissionForm
 
 
 @courses.route('/courses/create', methods=['GET', 'POST'])
+@login_required
 def create_course():
+    if current_user.role.name != 'Instructor':
+        abort(404)
+
     form = CourseForm()
     if form.validate_on_submit():
         course = Course(name=form.name.data,
@@ -20,9 +25,10 @@ def create_course():
 
 
 @courses.route('/courses/<id>', methods=['GET', 'POST'])
+@login_required
 def view_course(id):
     course = Course.query.get_or_404(id)
-    if course not in current_user.courses:
+    if course not in current_user.courses and course not in current_user.created_courses:
         abort(404)
     form = AssignmentForm()
     if form.validate_on_submit():
@@ -34,19 +40,34 @@ def view_course(id):
     return render_template('courses/view.html', course=course, form=form)
 
 
-@courses.route('/courses/<course_id>/<assignment_id>', methods=['GET'])
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
+@courses.route('/courses/<course_id>/<assignment_id>', methods=['GET', 'POST'])
+@login_required
 def view_assignment(course_id, assignment_id):
     course = Course.query.get_or_404(course_id)
-    if course not in current_user.courses:
+    if course not in current_user.courses and course not in current_user.created_courses:
         abort(404)
     assignment = Assignment.query.get_or_404(assignment_id)
-    return render_template('courses/view_assignment.html', course=course, assignment=assignment)
+    if assignment not in course.assignments:
+        abort(404)
+    form = SubmissionForm()
+    if form.validate_on_submit():
+        filename = secure_filename(form.file.data.filename)
+        form.file.data.save(current_app.config['SUBMISSION_FOLDER'] + filename)
+        submission = Submission(file_name=filename)
+        flash('Submission Uploaded')
+        return redirect(url_for('courses.view_assignment', course_id=course.id, assignment_id=assignment.id))
+    return render_template('courses/view_assignment.html', course=course, assignment=assignment, form=form)
 
 
 @courses.route('/courses/<course_id>/<assignment_id>/<submission_id>')
+@login_required
 def view_submission(course_id, assignment_id, submission_id):
     course = Course.query.get_or_404(course_id)
-    if course not in current_user.courses:
+    if course not in current_user.courses and course not in current_user.created_courses:
         abort(404)
     assignment = Assignment.query.get_or_404(assignment_id)
     if assignment not in course.assignments:

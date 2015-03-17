@@ -7,10 +7,19 @@
 <div class="page-header">
     <h1>{{ assignment.name }}</h1>
 
-    <ul>
-    {% for submission in assignment.submissions %}
-      <li><a href="{{ url_for('courses.view_submission', course_id=course.id, assignment_id=assignment.id, submission_id=submission.id) }}">{{ submission.name }}</a></li>
-    {% endfor %}
-    </ul>
+    {% if current_user.role.name == 'Instructor' %}
+      <ul>
+      {% for submission in assignment.submissions %}
+        <li><a href="{{ url_for('courses.view_submission', course_id=course.id, assignment_id=assignment.id, submission_id=submission.id) }}">{{ submission.name }}</a></li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <form method="post" class="form" role="form" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        {{ form.file }}
+
+        <input class="btn btn-default" id="submit" name="submit" type="submit" value="Submit">
+      </form>
+    {% endif %}
 </div>
 {% endblock %}

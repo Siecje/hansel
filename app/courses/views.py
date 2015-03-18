@@ -57,7 +57,8 @@ def view_assignment(course_id, assignment_id):
     if form.validate_on_submit():
         filename = secure_filename(form.file.data.filename)
         form.file.data.save(current_app.config['SUBMISSION_FOLDER'] + filename)
-        submission = Submission(file_name=filename)
+        submission = Submission(file_name=filename, assignment=assignment, student=current_user)
+        db.session.add(submission)
         flash('Submission Uploaded')
         return redirect(url_for('courses.view_assignment', course_id=course.id, assignment_id=assignment.id))
     return render_template('courses/view_assignment.html', course=course, assignment=assignment, form=form)

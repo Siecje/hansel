@@ -27,6 +27,7 @@ class Assignment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
+    submissions = db.relationship('Submission', backref='assignment', lazy='dynamic')
 
     def __repr__(self):
         return '<Assignment %r>' % self.name
@@ -37,6 +38,7 @@ class Submission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     file_name = db.Column(db.Text)
     student_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    student = db.relationship('User', foreign_keys=[student_id], backref=db.backref('submissions', order_by=id))
     assignment_id = db.Column(db.Integer, db.ForeignKey('assignments.id'))
 
     def __repr__(self):

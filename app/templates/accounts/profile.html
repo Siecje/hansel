@@ -34,13 +34,21 @@
   <div class="col-sm-12">
     {% if user.role.name == 'Instructor' %}
       <a href="{{ url_for('courses.create_course') }}" class="btn btn-info">Create Course</a>
+      <h3>Courses</h3>
+      <ul>
+      {% for course in user.created_courses %}
+        <li><a href="{{ url_for('courses.view_course', id=course.id) }}">{{ course.name }}</a></li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <h3>Courses</h3>
+      <ul>
+      {% for course in user.courses %}
+        <li><a href="{{ url_for('courses.view_course', id=course.id) }}">{{ course.name }}</a></li>
+      {% endfor %}
+      </ul>
     {% endif %}
-    <h3>Courses</h3>
-    <ul>
-    {% for course in user.courses %}
-      <li><a href="{{ url_for('courses.view_course', id=course.id) }}">{{ course.name }}</a></li>
-    {% endfor %}
-    </ul>
+
   </div>
 </div>
 

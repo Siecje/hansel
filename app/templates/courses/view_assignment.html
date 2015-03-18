@@ -10,10 +10,20 @@
     {% if current_user.role.name == 'Instructor' %}
       <ul>
       {% for submission in assignment.submissions %}
-        <li><a href="{{ url_for('courses.view_submission', course_id=course.id, assignment_id=assignment.id, submission_id=submission.id) }}">{{ submission.name }}</a></li>
+        <li><a href="{{ url_for('courses.view_submission', course_id=course.id, assignment_id=assignment.id, submission_id=submission.id) }}">{{ submission.student.username }} | {{ submission.file_name }}</a></li>
       {% endfor %}
       </ul>
+      <a href="{{ url_for('courses.download_all_submissions', course_id=course.id, assignment_id=assignment.id) }}">Download All Submissions</a>
     {% else %}
+      {% if submissions %}
+        <h2>Already Submitted</h2>
+        {% for submission in submissions %}
+          {% if submission.student_id == current_user.id %}
+            <p>{{ submission.file_name }}</p>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+      <br>
       <form method="post" class="form" role="form" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         {{ form.file }}

@@ -47,6 +47,7 @@
         <li><a href="{{ url_for('courses.view_course', id=course.id) }}">{{ course.name }}</a></li>
       {% endfor %}
       </ul>
+      <a href="{{ url_for('courses.add_course', username=user.username) }}" class="btn btn-info">Add Course</a>
     {% endif %}
 
   </div>

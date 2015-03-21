@@ -7,7 +7,7 @@ from wtforms import ValidationError
 from .models import Course
 
 
-class CourseForm(Form):
+class CreateCourseForm(Form):
     name = StringField('Name', validators=[Required()])
     submit = SubmitField('Create Course')
 
@@ -20,3 +20,17 @@ class AssignmentForm(Form):
 class SubmissionForm(Form):
     file = FileField('Submission')
     submit = SubmitField('Submit')
+
+
+class CourseForm(Form):
+    course_id = StringField('Course ID', validators=[Required()])
+    submit = SubmitField('Add Course')
+
+    def validate_course_id(self, field):
+        try:
+            num = int(field.data)
+        except:
+            raise ValidationError('Course Id is not valid.')
+
+class DeleteCourseForm(Form):
+    submit = SubmitField('End Course')

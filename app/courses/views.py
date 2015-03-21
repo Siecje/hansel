@@ -6,7 +6,7 @@ from flask.ext.login import current_user, login_required
 from app.core import db
 from . import courses
 from .models import Course, Assignment, Submission
-from .forms import CourseForm, AssignmentForm, SubmissionForm
+from .forms import CourseForm, CreateCourseForm, AssignmentForm, SubmissionForm, DeleteCourseForm
 
 
 @courses.route('/courses/create', methods=['GET', 'POST'])
@@ -15,7 +15,7 @@ def create_course():
     if current_user.role.name != 'Instructor':
         abort(404)
 
-    form = CourseForm()
+    form = CreateCourseForm()
     if form.validate_on_submit():
         course = Course(name=form.name.data,
                         instructor=current_user)
@@ -25,6 +25,17 @@ def create_course():
         return redirect(url_for('courses.view_course', id=course.id))
     return render_template('courses/create.html', form=form)
 
+
+@courses.route('/courses/add', methods=['GET', 'POST'])
+@login_required
+def add_course():
+    form = CourseForm()
+    if form.validate_on_submit():
+        course = Course.query.get(form.course_id.data)
+        current_user.courses.append(course)
+        db.session.commit()
+        return redirect(url_for('accounts.user', username=current_user.username))
+    return render_template('courses/add.html', form=form)
 
 @courses.route('/courses/<id>', methods=['GET', 'POST'])
 @login_required
@@ -91,6 +102,7 @@ def view_submission(course_id, assignment_id, submission_id):
 
 
 @courses.route('/courses/<course_id>/<assignment_id>/download')
+@login_required
 def download_all_submissions(course_id, assignment_id):
     course = Course.query.get_or_404(course_id)
     if course not in current_user.courses and course not in current_user.created_courses:
@@ -104,3 +116,17 @@ def download_all_submissions(course_id, assignment_id):
         os.path.join(current_app.config['SUBMISSION_FOLDER'], str(assignment.id)))
     return send_from_directory(current_app.config['SUBMISSION_FOLDER'], str(assignment.id) + assignment.name + '.zip',
                                as_attachment=True, attachment_filename=str(assignment.id) + assignment.name)
+
+@courses.route('/courses/<course_id>/delete', methods=['GET', 'POST'])
+@login_required
+def delete_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    if course not in current_user.created_courses:
+        abort(404)
+    form = DeleteCourseForm()
+    if form.validate_on_submit():
+        course = Course.query.get(course_id)
+        db.session.delete(course)
+        db.session.commit()
+        return redirect(url_for('accounts.user', username=current_user.username))
+    return render_template('courses/delete.html', form=form)

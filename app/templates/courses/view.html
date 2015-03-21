@@ -15,6 +15,8 @@
     {% if current_user.role.name == 'Instructor' %}
     <h3>Create Assignment</h3>
     {{ wtf.quick_form(form) }}
+    <br>
+    <a href="{{ url_for('courses.delete_course', course_id=course.id) }}" class="btn btn-danger">End Course</a>
     {% endif %}
 </div>
 {% endblock %}

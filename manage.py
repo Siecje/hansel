@@ -6,6 +6,7 @@ from flask.ext.migrate import Migrate, MigrateCommand
 
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+
 manager = Manager(app)
 migrate = Migrate(app, db)
 
@@ -40,6 +41,10 @@ def deploy():
 
     # insert initial
     Role.insert_initial()
+
+# @manager.command
+# def runserver():
+#     app.run(ssl_context=('/home/siecje/Desktop/server.crt', '/home/siecje/Desktop/key.key'))
 
 if __name__ == '__main__':
     manager.run()
